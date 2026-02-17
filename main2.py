@@ -26,7 +26,7 @@ def run_tracker_in_thread(filename, model_path, camera_id):
                 break
 
             # Heavy processing only happens when NOT paused
-            results = model.track(frame, persist=True, verbose=False, classes=list(class_names.keys()), imgsz=1088, conf=0.1)
+            results = model.track(frame, persist=True, verbose=False, classes=list(class_names.keys()), imgsz=640, conf=0.1)
 
             if results[0].boxes is not None and results[0].boxes.id is not None:
                 boxes = results[0].boxes.xyxy.cpu().numpy()
