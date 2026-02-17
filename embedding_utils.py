@@ -29,19 +29,17 @@ class EmbeddingGenerator:
         ])
 
     @torch.no_grad()
-    def get_embeddings(self, frame, bboxes):
+    def get_embeddings(self, crops):
         """
         frame: Full BGR image
         bboxes: List or array of [x1, y1, x2, y2]
         """
-        if len(bboxes) == 0:
+        if len(crops) == 0:
             return None
 
         batch_tensors = []
 
-        for bbox in bboxes:
-            x1, y1, x2, y2 = map(int, bbox)
-            crop = frame[y1:y2, x1:x2]
+        for crop in crops:
 
             if crop.size == 0:
                 continue

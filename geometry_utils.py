@@ -1,12 +1,23 @@
+import numpy as np
 import cv2
 from collections import deque, defaultdict
 
 
+def get_distributed_crops(crops, n=16):
+    if len(crops) <= n:
+        return crops
+
+    indices = np.round(np.linspace(0, len(crops) - 1, n)).astype(int)
+    distributed_crops = [crops[i] for i in indices]
+    return distributed_crops
+
+
 class TrajectoryManager:
-    def __init__(self, max_points=30, max_lost_frames=5):
+    def __init__(self, max_points=30, max_lost_frames=5, on_delete_callback=None):
         self.max_points = max_points
         self.max_lost_frames = max_lost_frames
         self.tracks = {}
+        self.on_delete_callback = on_delete_callback
 
     def update(self, obj_id, pos, cropped_box=None):
         if obj_id not in self.tracks:
@@ -34,7 +45,10 @@ class TrajectoryManager:
                 track["lost_count"] = 0
 
             if track["lost_count"] > self.max_lost_frames:
+                if self.on_delete_callback:
+                    self.on_delete_callback(obj_id, track["crops"])
                 del self.tracks[obj_id]
+
 
     def draw(self, frame):
         for obj_id, data in self.tracks.items():
