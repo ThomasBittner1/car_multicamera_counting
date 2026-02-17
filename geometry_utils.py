@@ -61,3 +61,5 @@ class TrajectoryManager:
                 cv2.line(frame, points[i - 1], points[i], (0, 255, 255), thickness)
 
 
+
+
