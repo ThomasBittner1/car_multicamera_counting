@@ -1,6 +1,11 @@
 import threading
 import cv2
+import numpy as np
 from ultralytics import YOLO
+import geometry_utils
+import embedding_utils
+
+
 
 class_names = {2: "Car", 3: "Motorcycle", 5: "Bus", 7: "Truck"}
 
@@ -9,7 +14,19 @@ do_break = False
 is_paused = False  # Switch to a simple boolean for easier toggle
 
 
-def run_tracker_in_thread(filename, model_path, camera_id):
+
+def calculate_embeddings(cid, id, crops):
+    print (f'{cid}: car {id} deleted, {len(crops)} crops')
+    crops = geometry_utils.get_distributed_crops(crops)
+    vector = embedder.get_embeddings(crops)
+    mean_vector = np.mean(vector, axis=0)
+
+
+
+embedder = embedding_utils.EmbeddingGenerator()
+
+
+def run_tracker_in_thread(filename, model_path, cid, trajectories):
     global do_break, is_paused
     cap = cv2.VideoCapture(filename)
     model = YOLO(model_path)
@@ -35,6 +52,11 @@ def run_tracker_in_thread(filename, model_path, camera_id):
                     x1, y1, x2, y2 = map(int, box)
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                     cv2.putText(frame, f"ID:{obj_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
+                    trajectories.update(obj_id, (cx, cy), frame[y1:y2, x1:x2])
+
+                trajectories.process_garbage_collection(ids.tolist(), cid)
+                trajectories.draw(frame)
 
             last_frame = frame.copy()
 
@@ -45,7 +67,7 @@ def run_tracker_in_thread(filename, model_path, camera_id):
                 # Add a visual "PAUSED" indicator so you know it's working
                 cv2.putText(display_frame, "PAUSED", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 5)
 
-            cv2.imshow(f"Camera {camera_id}", display_frame)
+            cv2.imshow(f"Camera {cid}", display_frame)
 
         # IMPORTANT: This must run every loop, even when paused!
         key = cv2.waitKey(1) & 0xFF
@@ -69,7 +91,8 @@ sources = [
 
 threads = []
 for src, cid in sources:
-    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26m.pt", cid), daemon=True)
+    trajectories = geometry_utils.TrajectoryManager(on_delete_callback=calculate_embeddings)
+    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26n.pt", cid, trajectories), daemon=True)
     threads.append(thread)
     thread.start()
 
