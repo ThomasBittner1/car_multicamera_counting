@@ -25,9 +25,8 @@ def calculate_embeddings(cid, id, crops):
 
 
 trajectories = {cid: geometry_utils.TrajectoryManager(on_delete_callback=calculate_embeddings) for cid in caps.keys()}
-trackers = {cid: tracker.IOUTracker(iou_thresh=0.3, max_misses=15, min_conf=0.25, class_aware=True)
-            for cid in caps.keys()}
-
+# Initialize one Manager per camera source
+trackers = {cid: tracker.AdvancedTracker(iou_threshold=0.3, max_age=30) for cid in caps.keys()}
 
 embedder = embedding_utils.EmbeddingGenerator()
 model = YOLO("yolo11m.pt")

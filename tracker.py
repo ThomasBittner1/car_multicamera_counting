@@ -26,7 +26,7 @@ def iou_batch(bboxes1, bboxes2):
 class KalmanBoxTracker:
     """
     Uses a Kalman Filter to track the state of a bounding box.
-    State vector: [x, y, s, r, vx, vy, vs] 
+    State vector: [x, y, s, r, vx, vy, vs]
     (center x, center y, scale/area, aspect ratio, and their velocities)
     """
 
@@ -49,6 +49,7 @@ class KalmanBoxTracker:
 
         self.kf.x[:4] = self._bbox_to_z(bbox)
         self.time_since_update = 0
+        self.hits = 1  # <--- Add this line
         self.history = []
 
     def _bbox_to_z(self, bbox):
@@ -125,16 +126,19 @@ class AdvancedTracker:
 
         # 3. Update matched trackers
         for m in matches:
+            # m[0, 0] is detection index, m[0, 1] is tracker index
             self.trackers[m[0, 1]].update(dets[m[0, 0], :4])
+            # The .update() call now increments self.hits inside the class
 
         # 4. Create new trackers for unmatched detections
         for i in unmatched_detections:
             trk = KalmanBoxTracker(dets[i, :4])
-            trk.id = self.next_id
+            trk.id = self.next_id  # <--- Ensure this is here
             self.next_id += 1
             self.trackers.append(trk)
 
         # 5. Remove dead tracks
         self.trackers = [t for t in self.trackers if t.time_since_update <= self.max_age]
 
-        return self.trackers
+        # Change the return line in tracker.py to be more forgiving initially
+        return [t for t in self.trackers if t.time_since_update <= 1 and t.hits >= 1]
