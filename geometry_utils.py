@@ -32,6 +32,8 @@ class TrajectoryManager:
             if self.lost_counters[obj_id] > self.max_lost_frames:
                 del self.tracks[obj_id]
                 del self.lost_counters[obj_id]
+                car_got_lost()
+
 
     def draw(self, frame):
         """
