@@ -17,8 +17,8 @@ sources = {"c041": "AICity22_Track1_MTMC_Tracking/test/S06/c041/vdo.avi",
 caps = {cid: cv2.VideoCapture(src) for cid, src in sources.items()}
 
 
-def calculate_embeddings(id, crops):
-    print (f'car {id} deleted, {len(crops)} crops')
+def calculate_embeddings(cid, id, crops):
+    print (f'{cid}: car {id} deleted, {len(crops)} crops')
     crops = geometry_utils.get_distributed_crops(crops)
     vector = embedder.get_embeddings(crops)
     mean_vector = np.mean(vector, axis=0)
@@ -65,7 +65,7 @@ while True:
                 continue  # don't draw stale tracks
 
             x1, y1, x2, y2 = map(int, trk.bbox)
-            label = f"{class_names.get(trk.cls_id, 'Veh')}: #{trk.track_id}"
+            label = f"#{trk.track_id}"
 
             cv2.rectangle(frames[c], (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.putText(frames[c], label, (x1, y1 - 8),
@@ -76,7 +76,7 @@ while True:
 
             trajectories[cid].update(trk.track_id, (cx, cy), crop)
 
-        trajectories[cid].process_garbage_collection(active_ids=[trk.track_id for trk in active_tracks])
+        trajectories[cid].process_garbage_collection(active_ids=[trk.track_id for trk in active_tracks], cid=cid)
         trajectories[cid].draw(frames[c])
 
         cv2.imshow(cid, frames[c])

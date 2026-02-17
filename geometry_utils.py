@@ -32,7 +32,7 @@ class TrajectoryManager:
         track["crops"].append(cropped_box)
         track["lost_count"] = 0
 
-    def process_garbage_collection(self, active_ids):
+    def process_garbage_collection(self, active_ids, cid):
         # Use list() because we are deleting keys while iterating
         all_stored_ids = list(self.tracks.keys())
 
@@ -46,7 +46,7 @@ class TrajectoryManager:
 
             if track["lost_count"] > self.max_lost_frames:
                 if self.on_delete_callback:
-                    self.on_delete_callback(obj_id, track["crops"])
+                    self.on_delete_callback(cid, obj_id, track["crops"])
                 del self.tracks[obj_id]
 
 
