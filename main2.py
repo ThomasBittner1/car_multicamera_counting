@@ -23,15 +23,14 @@ def calculate_embeddings(cid, id, crops):
     crops = geometry_utils.get_distributed_crops(crops)
     vector = embedder.get_embeddings(crops)
     mean_vector = np.mean(vector, axis=0)
-    print ('mean_vector: ', mean_vector)
 
     data = camera_trajectories[cid].tracks[id]
     direction = data['direction']
     # if cid == 'c041':
     #     if direction
-    print ('direction: ', data['direction'])
-    # if data['direction'] > -40 and data['direction'] < -5:
-    #     c042_exited_right.append(id)
+    if data['angle'] > -40 and data['angle'] < -5:
+        c042_exited_right.append(id)
+        print ('mean_vector: ', mean_vector)
 
 # --- Launch Logic (Same as before) ---
 sources = [
