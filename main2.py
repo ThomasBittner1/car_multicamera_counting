@@ -13,8 +13,10 @@ do_break = False
 is_paused = False  # Switch to a simple boolean for easier toggle
 
 
-c042_exited_left = []
-c041_exited_right = []
+c042_exited_right = []
+
+camera_trajectories = {}
+
 
 def calculate_embeddings(cid, id, crops):
     print (f'{cid}: car {id} deleted, {len(crops)} crops')
@@ -23,9 +25,17 @@ def calculate_embeddings(cid, id, crops):
     mean_vector = np.mean(vector, axis=0)
     print ('mean_vector: ', mean_vector)
 
+    data = camera_trajectories[cid].tracks[id]
+    direction = data['direction']
+    # if cid == 'c041':
+    #     if direction
+    print ('direction: ', data['direction'])
+    # if data['direction'] > -40 and data['direction'] < -5:
+    #     c042_exited_right.append(id)
+
 # --- Launch Logic (Same as before) ---
 sources = [
-    ("AICity22_Track1_MTMC_Tracking/test/S06/c041/vdo.avi", "c041"),
+    # ("AICity22_Track1_MTMC_Tracking/test/S06/c041/vdo.avi", "c041"),
     ("AICity22_Track1_MTMC_Tracking/test/S06/c042/vdo.avi", "c042")
 ]
 
@@ -33,16 +43,23 @@ sources = [
 embedder = embedding_utils.EmbeddingGenerator()
 sync_barrier = threading.Barrier(len(sources))
 
-def run_tracker_in_thread(filename, model_path, cid, trajectories):
+start_time_sec = 80.0
+
+def run_tracker_in_thread(filename, model_path, cid):
     global do_break, is_paused
     cap = cv2.VideoCapture(filename)
+
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.set(cv2.CAP_PROP_POS_MSEC, start_time_sec * 1000)
+    spf = 1.0 / fps
     model = YOLO(model_path)
 
     last_frame = None
 
-
-
+    trajectories = camera_trajectories[cid]
+    current_time = start_time_sec - spf
     while True:
+
         if do_break:
             break
 
@@ -55,6 +72,8 @@ def run_tracker_in_thread(filename, model_path, cid, trajectories):
 
 
         if not is_paused:
+            current_time += spf
+
             ret, frame = cap.read()
             if not ret:
                 break
@@ -76,6 +95,8 @@ def run_tracker_in_thread(filename, model_path, cid, trajectories):
                 trajectories.draw(frame)
 
             last_frame = frame.copy()
+
+        cv2.putText(last_frame, f"TIME: {round(current_time, 2)} seconds", (200, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
 
         # Display either the new frame or the "frozen" last frame
         if last_frame is not None:
@@ -100,11 +121,10 @@ def run_tracker_in_thread(filename, model_path, cid, trajectories):
     cap.release()
 
 
-
 threads = []
 for src, cid in sources:
-    trajectories = geometry_utils.TrajectoryManager(on_delete_callback=calculate_embeddings)
-    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26s.pt", cid, trajectories), daemon=True)
+    camera_trajectories[cid] = geometry_utils.TrajectoryManager(on_delete_callback=calculate_embeddings)
+    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26s.pt", cid), daemon=True)
     threads.append(thread)
     thread.start()
 

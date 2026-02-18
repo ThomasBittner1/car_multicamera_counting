@@ -41,18 +41,24 @@ class TrajectoryManager:
             start_point = track["points"][-lookback]
             end_point = track["points"][-1]
 
-            direction_vec = np.array(end_point, dtype='float64') - np.array(start_point, dtype='float64')
+            dir = np.array(end_point, dtype='float64') - np.array(start_point, dtype='float64')
             # Normalize to unit vector
-            mag = np.linalg.norm(direction_vec)
+            mag = np.linalg.norm(dir)
             track["mag"] = mag
             if mag > 0:
-                track["direction"] = direction_vec / mag
+                track["direction"] = dir / mag
             else:
                 track["direction"] = np.array([0.0, 0.0])
+                track['angle'] = 0.0
+
+            angle_rad = np.arctan2(dir[1], dir[0])
+            angle_deg = np.degrees(angle_rad)
+            track['angle'] = angle_deg
+
         else:
             track["direction"] = np.array([0.0, 0.0])
             track["mag"] = 0.0
-
+            track['angle'] = 0.0
 
     def process_garbage_collection(self, active_ids, cid):
         # Use list() because we are deleting keys while iterating
@@ -78,7 +84,7 @@ class TrajectoryManager:
             if len(points) < 2:
                 continue
             dir = data['direction']
-            cv2.putText(frame, f"dir: {dir[0]:0.3f}, {dir[1]:0.3f} (mag: {data['mag']:.3f})",
+            cv2.putText(frame, f"deg:{data['angle']:.3f}",#, (mag: {data['mag']:.3f})",
                         points[-1], cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             for i in range(1, len(points)):
                 thickness = int(2 * (i / self.max_points) + 1)
