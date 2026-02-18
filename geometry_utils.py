@@ -44,12 +44,14 @@ class TrajectoryManager:
             direction_vec = np.array(end_point, dtype='float64') - np.array(start_point, dtype='float64')
             # Normalize to unit vector
             mag = np.linalg.norm(direction_vec)
+            track["mag"] = mag
             if mag > 0:
                 track["direction"] = direction_vec / mag
             else:
                 track["direction"] = np.array([0.0, 0.0])
         else:
             track["direction"] = np.array([0.0, 0.0])
+            track["mag"] = 0.0
 
 
     def process_garbage_collection(self, active_ids, cid):
@@ -76,7 +78,8 @@ class TrajectoryManager:
             if len(points) < 2:
                 continue
             dir = data['direction']
-            cv2.putText(frame, f"dir: {dir[0]:0.3f}, {dir[1]:0.3f}", points[-1], cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(frame, f"dir: {dir[0]:0.3f}, {dir[1]:0.3f} (mag: {data['mag']:.3f})",
+                        points[-1], cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             for i in range(1, len(points)):
                 thickness = int(2 * (i / self.max_points) + 1)
                 cv2.line(frame, points[i - 1], points[i], (0, 255, 255), thickness)
