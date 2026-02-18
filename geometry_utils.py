@@ -32,6 +32,26 @@ class TrajectoryManager:
         track["crops"].append(cropped_box)
         track["lost_count"] = 0
 
+        num_points_for_distance = 3
+        pts_count = len(track["points"])
+
+        if pts_count >= 2:
+            lookback = min(pts_count, num_points_for_distance)
+
+            start_point = track["points"][-lookback]
+            end_point = track["points"][-1]
+
+            direction_vec = np.array(end_point, dtype='float64') - np.array(start_point, dtype='float64')
+            # Normalize to unit vector
+            mag = np.linalg.norm(direction_vec)
+            if mag > 0:
+                track["direction"] = direction_vec / mag
+            else:
+                track["direction"] = np.array([0.0, 0.0])
+        else:
+            track["direction"] = np.array([0.0, 0.0])
+
+
     def process_garbage_collection(self, active_ids, cid):
         # Use list() because we are deleting keys while iterating
         all_stored_ids = list(self.tracks.keys())
@@ -55,7 +75,8 @@ class TrajectoryManager:
             points = data["points"]
             if len(points) < 2:
                 continue
-
+            dir = data['direction']
+            cv2.putText(frame, f"dir: {dir[0]:0.3f}, {dir[1]:0.3f}", points[-1], cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             for i in range(1, len(points)):
                 thickness = int(2 * (i / self.max_points) + 1)
                 cv2.line(frame, points[i - 1], points[i], (0, 255, 255), thickness)

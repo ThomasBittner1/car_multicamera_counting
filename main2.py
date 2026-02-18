@@ -6,7 +6,6 @@ import geometry_utils
 import embedding_utils
 
 
-
 class_names = {2: "Car", 3: "Motorcycle", 5: "Bus", 7: "Truck"}
 
 # Global signals
@@ -14,17 +13,25 @@ do_break = False
 is_paused = False  # Switch to a simple boolean for easier toggle
 
 
+c042_exited_left = []
+c041_exited_right = []
 
 def calculate_embeddings(cid, id, crops):
     print (f'{cid}: car {id} deleted, {len(crops)} crops')
     crops = geometry_utils.get_distributed_crops(crops)
     vector = embedder.get_embeddings(crops)
     mean_vector = np.mean(vector, axis=0)
+    print ('mean_vector: ', mean_vector)
 
+# --- Launch Logic (Same as before) ---
+sources = [
+    ("AICity22_Track1_MTMC_Tracking/test/S06/c041/vdo.avi", "c041"),
+    ("AICity22_Track1_MTMC_Tracking/test/S06/c042/vdo.avi", "c042")
+]
 
 
 embedder = embedding_utils.EmbeddingGenerator()
-
+sync_barrier = threading.Barrier(len(sources))
 
 def run_tracker_in_thread(filename, model_path, cid, trajectories):
     global do_break, is_paused
@@ -33,9 +40,19 @@ def run_tracker_in_thread(filename, model_path, cid, trajectories):
 
     last_frame = None
 
+
+
     while True:
         if do_break:
             break
+
+        # --- THE SYNC POINT ---
+        # Every thread waits here. Nobody moves until all threads reach this line.
+        try:
+            sync_barrier.wait(timeout=5.0)
+        except threading.BrokenBarrierError:
+            break
+
 
         if not is_paused:
             ret, frame = cap.read()
@@ -83,16 +100,11 @@ def run_tracker_in_thread(filename, model_path, cid, trajectories):
     cap.release()
 
 
-# --- Launch Logic (Same as before) ---
-sources = [
-    ("AICity22_Track1_MTMC_Tracking/test/S06/c041/vdo.avi", "c041"),
-    ("AICity22_Track1_MTMC_Tracking/test/S06/c042/vdo.avi", "c042")
-]
 
 threads = []
 for src, cid in sources:
     trajectories = geometry_utils.TrajectoryManager(on_delete_callback=calculate_embeddings)
-    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26n.pt", cid, trajectories), daemon=True)
+    thread = threading.Thread(target=run_tracker_in_thread, args=(src, "yolo26s.pt", cid, trajectories), daemon=True)
     threads.append(thread)
     thread.start()
 
