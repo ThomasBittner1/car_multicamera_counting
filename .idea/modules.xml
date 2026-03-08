@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/car_multicamera.iml" filepath="$PROJECT_DIR$/.idea/car_multicamera.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/car_multicamera_counting.iml" filepath="$PROJECT_DIR$/.idea/car_multicamera_counting.iml" />
     </modules>
   </component>
 </project>
