@@ -72,7 +72,7 @@ There is an embedding-score threshold below which detections are classified as u
 # YOLO
 
 The models were created using *Ultralytics* and *Label-Studio*. To make data handling easier, I created this tool that handles things
-like quality checking pre-training, and splitting labels:
+like quality checking, pre-training, and splitting data:
 https://github.com/ThomasBittner1/DataManager
 ![Alt text](DataManager.png)  
 
