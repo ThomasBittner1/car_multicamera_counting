@@ -8,7 +8,7 @@ class AppConfig:
     source_record_ttl_seconds = 60.0
     record_to_file = None
     debug_pause_at_frame_index = None
-    model_path = Path("cars_1.engine")
+    model_path = Path("../models/cars_1.engine")
     window_names = ("source c042", "query c041")
     video_paths = (
         r"AICity22_Track1_MTMC_Tracking\test\S06\c042\vdo.avi",

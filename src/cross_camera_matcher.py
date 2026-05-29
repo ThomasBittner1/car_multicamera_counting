@@ -2,9 +2,7 @@ from collections import defaultdict
 
 import numpy as np
 
-import embedding_utils
-import general_utils
-import geometry_utils
+from src import embedding_utils, general_utils, geometry_utils
 
 
 def calculate_embedding_multiple(embedder, crops, distributed_count=16, return_mean=True):

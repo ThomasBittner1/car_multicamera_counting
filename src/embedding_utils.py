@@ -182,8 +182,8 @@ class VehicleReIDResNetIBN(nn.Module):
 
 
 class EmbeddingGenerator:
-    DEFAULT_VEHICLE_REID_CKPT = Path("net_19.pth")
-    DEFAULT_VEHICLE_REID_OPTS = Path("opts.yaml")
+    DEFAULT_VEHICLE_REID_CKPT = Path("../models/net_19.pth")
+    DEFAULT_VEHICLE_REID_OPTS = Path("../models/opts.yaml")
 
     def __init__(self, model_path=None, opts_path=None, allow_generic_fallback=False):
         if allow_generic_fallback:

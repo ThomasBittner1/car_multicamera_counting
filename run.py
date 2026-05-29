@@ -2,13 +2,12 @@ import cv2
 import numpy as np
 import time
 
-import embedding_utils
-import geometry_utils
-from config import AppConfig
-from cross_camera_matcher import CrossCameraMatcher
-from tracking import create_trackers_by_camera, predict_and_track
-from visualization import Visualizer
-from yolo import load_detection_model
+from src import embedding_utils, geometry_utils
+from src.config import AppConfig
+from src.cross_camera_matcher import CrossCameraMatcher
+from src.tracking import create_trackers_by_camera, predict_and_track
+from src.visualization import Visualizer
+from src.yolo import load_detection_model
 
 
 def _create_masks(captures, mask_points_by_camera):

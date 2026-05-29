@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import time
 
-from config import AppConfig
-from tracking import create_trackers_by_camera, tracks_from_detections
-from yolo import load_detection_model
+from src.config import AppConfig
+from src.tracking import create_trackers_by_camera, tracks_from_detections
+from src.yolo import load_detection_model
 
 
 def create_masks(captures, mask_points_by_camera):

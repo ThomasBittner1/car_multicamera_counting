@@ -7,7 +7,7 @@ temporary source gallery. Query-camera cars are compared against that gallery af
 query entry line (red line).
 The following videos show mainly query camera, source camera is shown in the yellow rectangle at the top left. 
 
-![Alt text](car_multicamera_short.gif)  
+![Alt text](images/car_multicamera_short.gif)  
 Click [here](https://youtu.be/3h7nIVx7mr8) to see a longer and larger version on YouTube:
 
 
@@ -46,7 +46,7 @@ and whether the selected source crop was classified as strong or weak.
 You can also click on individual vehicles to isolate and inspect their displays.  
 With M and O you can display the masks for ignoring the YOLO inference (shown in red) and in the query camera the area that defines vehicles that didn't come from the source camera. 
 In addition, a separate window shows the current gallery of recorded crops from the source camera.  
-![Alt text](debug_view.jpg)  
+![Alt text](images/debug_view.jpg)  
 
 
 # Performance
@@ -74,7 +74,7 @@ There is an embedding-score threshold below which detections are classified as u
 The models were created using *Ultralytics* and *Label-Studio*. To make data handling easier, I created this tool that handles things
 like quality checking, pre-training, and splitting data:
 https://github.com/ThomasBittner1/DataManager
-![Alt text](DataManager.png)  
+![Alt text](images/DataManager.png)  
 
 
 # Ideas to improve
@@ -96,8 +96,9 @@ python _install_fix_boxmot.py
 ```
 **3. Download YOLO models**  
 https://www.dropbox.com/scl/fo/rxtyo6lqxiuo7ieuffhku/APcf0Gdwyqdk3PpRkojlJ0U?rlkey=ahfdtwtvlshzq435nqdm4u3ri&dl=0  
-Put the three files into the root folder. 
-By default it's choosing the tensorRT one (*cars_1.engine*), but you can switch to a different one in the *AppConfig*:
+Put the three files into the *models* folder. 
+By default it's choosing the tensorRT one (*cars_1.engine*), but you can switch to a different one in the *AppConfig*
+inside run.py:
 
 ``` python
 model_path = Path("cars_1.engine")
@@ -111,9 +112,10 @@ For the best performance, it is recommended to use the original model (*cars.pt*
 
 https://drive.google.com/file/d/1STbsacssLtlHpUesNzuTeUPrfMlWbSKu/view  
 (Source: https://github.com/regob/vehicle_mtmc)  
-After downloading the file, put *net_19.pth* and *opts.yaml* into the root folder.
+After downloading the file, put *net_19.pth* and *opts.yaml* into the *models* folder.
 
-**4. Download input videos**    
+
+**5. Download input videos**    
 https://www.aicitychallenge.org/2022-track1-download
 Put the main folder **AICity22_Track1_MTMC_Tracking** into the root folder of this project.
 
