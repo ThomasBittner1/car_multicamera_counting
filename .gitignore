@@ -1,6 +1,7 @@
 __pycache__
 .idea
 AICity22_Track1_MTMC_Tracking
-models
+models/*
+!models/.gitkeep
  
  
