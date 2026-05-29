@@ -5,6 +5,6 @@ runs
 __pycache__
 .idea
 AICity22_Track1_MTMC_Tracking
-models/net_19.pth
+models
  
  
