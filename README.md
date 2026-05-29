@@ -101,7 +101,7 @@ By default it's choosing the tensorRT one (*cars_1.engine*), but you can switch 
 inside run.py:
 
 ``` python
-config = config or AppConfig(model_path="cars.engine")
+    config = config or AppConfig(model_path="models/cars_1.engine")
 ```
 For the best performance, it is recommended to use the original model (*cars.pt*) and export it to TensorRT directly on your target system.
 

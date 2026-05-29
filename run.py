@@ -89,7 +89,7 @@ def _crossed_line(previous_center, current_center, crossing_line, directional=Fa
 
 
 def run(config=None):
-    config = config or AppConfig(model_path="cars.engine")
+    config = config or AppConfig(model_path="models/cars_1.engine")
     source_camera_index = 0
     query_camera_index = 1
     camera_count = len(config.video_paths)
